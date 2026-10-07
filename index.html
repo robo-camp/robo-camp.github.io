@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Remember what you did? Learning Behavioral Memories for Partially Observable Object Manipulation. CAMP: Compressed Action Memory Policy.">
+  <meta name="keywords" content="CAMP, behavioral memory, partial observability, robot manipulation, imitation learning, diffusion policy">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Remember what you did? &mdash; CAMP</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+
+<section class="hero" style="background-color: rgba(245, 73, 41, 0.045);">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title"><span style="color: #F5492A;">Remember what you did?:</span><br>Learning Behavioral Memories for Partially Observable Object Manipulation</h1>
+
+          <!-- TODO: replace with author list (anonymized for review) -->
+          <div class="is-size-5 publication-authors" style="margin-top: 1.25rem;">
+            <span class="author-block">Anonymous Authors</span>
+          </div>
+
+          <div class="has-text-centered" style="margin-top: 1.5rem;">
+            <span class="tag is-medium" style="background-color: #14141c; color: #fff; font-weight: 600; border-radius: 9999px; padding: 1.1rem 1.5rem;">Under Review</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Teaser -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <h2 class="title is-2 has-text-centered">Overview</h2>
+      <img src="./static/images/teaser.png" alt="CAMP teaser figure" style="width: 100%; height: auto; display: block; margin-bottom: 0;"/>
+      <p class="has-text-justified" style="margin-top: 0; padding-top: 0;">
+        <span class="has-text-weight-bold">From 0% to 70% success: a compressed memory of past
+        actions resolves partial observability.</span>
+        Many manipulation tasks are partially observable, so memoryless policies act on an aliased
+        signal and fail on tasks like Push-T-Multi-Goals (<em>left</em>). CAMP (<em>right</em>)
+        pretrains a memory module &#8496;<sub>&theta;</sub> to reconstruct the past action
+        trajectory, yielding a compressed code <em>z</em> that conditions a diffusion action head
+        and turns the partially observed problem Markovian.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- Abstract -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Long-horizon, multi-stage manipulation tasks are often partially observable: a single
+            visual observation rarely captures a robot's full action context, including prior
+            attempts, interactions, or progress. Consequently, standard visuomotor policies,
+            vision-language-action models, and world-action-models are prone to struggle in such
+            tasks due to a lack of memory. To address this, we introduce
+            <span class="has-text-weight-bold">Compressed Action Memory Policy (CAMP)</span> based
+            on the insight that a robot's own action history serves as a highly informative,
+            self-supervised signal, enabling the policy to learn a robust, compact history
+            representation. In our approach, we train a memory module to maintain a compressed
+            representation of past actions, forcing it to encode a latent behavioral memory of all
+            the robot's past interactions that can then be used to better contextualize future
+            actions. This allows our approach to implicitly track generalized task progress and
+            learn from failed attempts without any additional supervision, or external oversight.
+            We evaluate CAMP on two novel simulation benchmarks, Memory-T-Bench and
+            Memory-Manip-Bench, on the external RMBench, and on four real-robot tasks. By
+            demonstrating substantial gains over state-of-the-art baselines, CAMP is, to our
+            knowledge, the first policy to demonstrate substantial success on partially observable
+            manipulation tasks purely through learned behavioral memory.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Memory-T-Bench Results -->
+<section class="section">
+  <div class="container is-max-widescreen">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Memory-T-Bench</h2>
+        <div class="content has-text-justified" style="max-width: 860px; margin: 0 auto;">
+          <p>
+            Memory-T-Bench comprises four PushT-derived tasks that share the same contact-rich
+            dynamics but cannot be solved from a single frame. Three are
+            <strong>track-task-progress</strong> tasks -- the policy must remember what it has
+            already accomplished -- and one is a <strong>learn-from-failure</strong> task, where
+            it must remember what did <em>not</em> work.
+            <span style="color: #F5492A; font-weight: 600;">Hover a card for details.</span>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="bench-scroller">
+      <button class="bench-arrow bench-prev" type="button" aria-label="Scroll left"><span>&#8249;</span></button>
+      <div class="bench-track" id="mtb-track">
+        <div class="bench-item">
+          <div class="bench-label">Multi-Goals</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/memory-t-bench/push_multi_t.jpg"><source src="./static/videos/memory-t-bench/push_multi_t.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag track">Track Progress</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Push the T-block into three goal regions in any order -- without ever pushing it into the same region twice.</p>
+              <p class="success"><strong>Success:</strong> all three goals reached, each exactly once.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Swap-Direct</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/memory-t-bench/swap_2_t.jpg"><source src="./static/videos/memory-t-bench/swap_2_t.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag track">Track Progress</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Two T-blocks must exchange positions, but a mid-episode frame no longer reveals which block started where.</p>
+              <p class="success"><strong>Success:</strong> each block ends in the other's starting position.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Swap-Shuffle</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/memory-t-bench/swap_3_t.jpg"><source src="./static/videos/memory-t-bench/swap_3_t.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag track">Track Progress</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>The same swap as Swap-Direct, but the starting assignment is re-randomized every episode.</p>
+              <p class="success"><strong>Success:</strong> the two blocks exchange positions despite the shuffled start.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Find-Track</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/memory-t-bench/push_frictional_t_3_tracks.jpg"><source src="./static/videos/memory-t-bench/push_frictional_t_3_tracks.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag learn">Learn from Failure</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Three tracks lead to the goal, but two are high-friction and block the T. Reach the goal through the open track -- without retrying a track that already failed.</p>
+              <p class="success"><strong>Success:</strong> the T reaches the goal via the low-friction track, with no repeated failed attempt.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="bench-arrow bench-next" type="button" aria-label="Scroll right"><span>&#8250;</span></button>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column is-four-fifths" style="max-width: 1000px;">
+        <div class="tbench-result">
+          <strong>CAMP outperforms Diffusion Policy by over 32.5%</strong> across these four tasks.
+          Because a single observation hides what the robot has already tried or achieved, a memoryless
+          policy stalls; by compressing its own action history into a compact behavioral memory, CAMP
+          recovers this hidden state -- effectively closing the partial-observability gap.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Memory-Manip-Bench Results -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-widescreen">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Memory-Manip-Bench</h2>
+        <div class="content has-text-justified" style="max-width: 860px; margin: 0 auto;">
+          <p>
+            Memory-Manip-Bench extends the study to seven partially observable 3D
+            manipulation tasks across a range of contact. Six are
+            <strong>learn-from-failure</strong> -- the policy must remember which options
+            already failed -- and one (Swap-Block) requires
+            <strong>tracking task progress</strong>.
+            <span style="color: #F5492A; font-weight: 600;">Hover a card for details.</span>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="bench-scroller">
+      <button class="bench-arrow bench-prev" type="button" aria-label="Scroll left"><span>&#8249;</span></button>
+      <div class="bench-track" id="mmb-track">
+        <div class="bench-item">
+          <div class="bench-label">Swap-Block</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/memory-manip-bench/swap-block.jpg"><source src="./static/videos/memory-manip-bench/swap-block.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Track Progress</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Swap two blocks via a buffer spot while recalling their initial positions.</p>
+              <p class="success"><strong>Success:</strong> each block ends in the other's initial position.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Button-Lightbulb</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/memory-manip-bench/button-lightbulb.jpg"><source src="./static/videos/memory-manip-bench/button-lightbulb.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Learn from Failure</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Probe buttons to infer a hidden one-to-one button--bulb mapping, then light the bulb with the red base.</p>
+              <p class="success"><strong>Success:</strong> the lightbulb is activated using the inferred mapping.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Uncover-Blocks</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/memory-manip-bench/uncover-block.jpg"><source src="./static/videos/memory-manip-bench/uncover-block.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Learn from Failure</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Lift each look-alike cover once, moving on the moment nothing is found beneath it.</p>
+              <p class="success"><strong>Success:</strong> the hidden target is uncovered without re-checking a cover.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Stack-Lego</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/memory-manip-bench/lego-stack.jpg"><source src="./static/videos/memory-manip-bench/lego-stack.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Learn from Failure</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Attempt a stack to discover which of the two blocks has a stackable bottom.</p>
+              <p class="success"><strong>Success:</strong> the stackable block is identified and stacked.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Probe-Insert</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/memory-manip-bench/probe-insert.jpg"><source src="./static/videos/memory-manip-bench/probe-insert.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Learn from Failure</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Probe three holes until finding the one that accepts the peg at full depth.</p>
+              <p class="success"><strong>Success:</strong> the peg is fully inserted into the accepting hole.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Find-Soda</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/memory-manip-bench/find-soda.jpg"><source src="./static/videos/memory-manip-bench/find-soda.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Learn from Failure</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Open closed drawers one at a time, skipping any already found empty, until the soda is located.</p>
+              <p class="success"><strong>Success:</strong> the soda is found without re-opening an empty drawer.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Open-Door</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/memory-manip-bench/open-door.jpg"><source src="./static/videos/memory-manip-bench/open-door.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Learn from Failure</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Only one of the three doors is unlocked; try the doors not yet opened, skipping any already found locked, until one opens.</p>
+              <p class="success"><strong>Success:</strong> the unlocked door is opened without re-trying a locked door.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="bench-arrow bench-next" type="button" aria-label="Scroll right"><span>&#8250;</span></button>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column is-four-fifths" style="max-width: 1000px;">
+        <div class="tbench-result">
+          <strong>CAMP reaches the highest average success of 64.3%</strong> -- over 23% above
+          the strongest baseline -- and wins six of the seven tasks.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- RMBench Results -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-widescreen">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">RMBench</h2>
+        <div class="content has-text-justified" style="max-width: 860px; margin: 0 auto;">
+          <p>
+            <a href="https://rmbench.github.io/" target="_blank" rel="noopener">RMBench</a> is an
+            external dual-arm memory benchmark of nine tasks, with 50 demonstrations per task and
+            evaluation on unseen layouts. Seven are <strong>track-task-progress</strong> tasks and
+            two (Battery-Try and Blocks-Ranking-Try) are <strong>learn-from-failure</strong>.
+            <span style="color: #F5492A; font-weight: 600;">Hover a card for details.</span>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="bench-scroller">
+      <button class="bench-arrow bench-prev" type="button" aria-label="Scroll left"><span>&#8249;</span></button>
+      <div class="bench-track" id="rmb-track">
+        <div class="bench-item">
+          <div class="bench-label">Observe-and-Pick-Up</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/rmbench/observe-and-pickup.jpg"><source src="./static/videos/rmbench/observe-and-pickup.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Track Progress</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>The target object is shown briefly before a wall hides it; the robot must then pick the matching object from among distractors.</p>
+              <p class="success"><strong>Success:</strong> the object matching the hidden target is picked up.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Rearrange-Blocks</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/rmbench/rearrange-blocks.jpg"><source src="./static/videos/rmbench/rearrange-blocks.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Track Progress</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Fill the originally empty mat, then place the second block between the mats -- recalling which mat was empty at the start.</p>
+              <p class="success"><strong>Success:</strong> both blocks end in the required spots.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Put-Back-Block</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/rmbench/put-back-block.jpg"><source src="./static/videos/rmbench/put-back-block.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Track Progress</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Carry the block to the center pad, press the button, then return the block to the pad it came from -- which the current frame no longer reveals.</p>
+              <p class="success"><strong>Success:</strong> the block is back on its original pad.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Swap-Blocks</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/rmbench/swap-blocks.jpg"><source src="./static/videos/rmbench/swap-blocks.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Track Progress</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Exchange two blocks via a spare basket; their original positions are not visible mid-episode.</p>
+              <p class="success"><strong>Success:</strong> each block ends in the other's starting position.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Swap-T</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/rmbench/swap-t.jpg"><source src="./static/videos/rmbench/swap-t.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Track Progress</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Exchange two T-blocks whose original positions are not visible mid-episode.</p>
+              <p class="success"><strong>Success:</strong> each T-block ends in the other's starting pose.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Battery-Try</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/rmbench/battery-try.jpg"><source src="./static/videos/rmbench/battery-try.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Learn from Failure</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Insert two batteries whose correct polarity is hidden, flipping only the ones that were rejected.</p>
+              <p class="success"><strong>Success:</strong> both batteries are inserted with the correct polarity.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Blocks-Ranking-Try</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/rmbench/blocks-ranking-try.jpg"><source src="./static/videos/rmbench/blocks-ranking-try.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Learn from Failure</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Order three blocks of unknown rank by swapping pairs and pressing a check button, using each verdict to avoid repeating a failed arrangement.</p>
+              <p class="success"><strong>Success:</strong> the check button confirms the correct order.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Cover-Blocks</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/rmbench/cover-blocks.jpg"><source src="./static/videos/rmbench/cover-blocks.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Track Progress</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Cover three blocks with identical covers, then re-open them in a prescribed color order -- remembering what lies under each cover.</p>
+              <p class="success"><strong>Success:</strong> the covers are lifted in the prescribed color order.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Press-Button</div>
+          <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/rmbench/press-button.jpg"><source src="./static/videos/rmbench/press-button.mp4" type="video/mp4"></video>
+          <div class="tinfo">
+            <div class="tinfo-head"><span class="tbench-tag">Track Progress</span><span class="tinfo-chev">&#9662;</span></div>
+            <div class="tinfo-detail">
+              <p>Read two number cards and press each button exactly that many times before confirming -- counting its own presses.</p>
+              <p class="success"><strong>Success:</strong> each button is pressed the shown number of times, then confirmed.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="bench-arrow bench-next" type="button" aria-label="Scroll right"><span>&#8250;</span></button>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column is-four-fifths" style="max-width: 1000px;">
+        <div class="tbench-result">
+          <strong>Trained from scratch, CAMP reaches the best average success of 52.3%</strong> --
+          10.6 points above the best prior method -- with 100% on Rearrange-Blocks, Put-Back-Block
+          and Blocks-Ranking-Try and 97% on Battery-Try.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Real-Robot Results: method comparison grid -->
+<section class="section" id="real-robot" style="padding-top: 0;">
+  <div class="container is-max-widescreen">
+    <div class="columns is-centered has-text-centered">
+      <div class="column">
+        <h2 class="title is-3">Real-Robot Experiments</h2>
+        <div class="content" style="max-width: 800px; margin: 0 auto;">
+          <p class="has-text-centered">
+            We compare <span class="has-text-weight-bold">CAMP (Ours)</span> against ACT, DP,
+            &pi;<sub>0.5</sub>, Long-context Diffusion Policy (LDP), and Causal Diffusion Policy
+            (CDP) across four real-robot manipulation tasks.
+            <span style="color: #F5492A; font-weight: 600;">Hover a card for details.</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task: Swap Can -->
+        <div class="task-card-ref">
+      <div class="tcr-head"><span class="tcr-name">Swap Can</span><span class="tcr-chev">&#9662;</span></div>
+      <div class="tcr-body">
+        <span class="tbench-tag">Track Progress</span>
+        <p>Swap two cans via a <strong>buffer</strong> spot while <strong>recalling their initial positions</strong>.</p>
+        <p class="success"><strong>Success:</strong> each can ends in the other's initial position.</p>
+      </div>
+    </div>
+    <div class="method-grid">
+      <div class="method-card is-ours">
+        <div class="method-label">CAMP (Ours)</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/swap-can/camp.jpg"><source src="./static/videos/real/swap-can/camp.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">ACT</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/swap-can/act.jpg"><source src="./static/videos/real/swap-can/act.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">DP</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/swap-can/dp.jpg"><source src="./static/videos/real/swap-can/dp.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">&pi;<sub>0.5</sub></div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/swap-can/pi.jpg"><source src="./static/videos/real/swap-can/pi.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">LDP</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/swap-can/ldp.jpg"><source src="./static/videos/real/swap-can/ldp.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">CDP</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/swap-can/cdp.jpg"><source src="./static/videos/real/swap-can/cdp.mp4" type="video/mp4"></video>
+      </div>
+    </div>
+
+    <!-- Task: Wipe Plate -->
+        <div class="task-card-ref">
+      <div class="tcr-head"><span class="tcr-name">Wipe Plate</span><span class="tcr-chev">&#9662;</span></div>
+      <div class="tcr-body">
+        <span class="tbench-tag">Track Progress</span>
+        <p>Wipe a random plate with a random brush and return it, then wipe the <strong>other</strong> plate with the <strong>other</strong> brush -- a choice the current frame <strong>doesn't reveal</strong>.</p>
+        <p class="success"><strong>Success:</strong> both plates are wiped, each with a different brush.</p>
+      </div>
+    </div>
+    <div class="method-grid">
+      <div class="method-card is-ours">
+        <div class="method-label">CAMP (Ours)</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/wipe-plate/camp.jpg"><source src="./static/videos/real/wipe-plate/camp.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">ACT</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/wipe-plate/act.jpg"><source src="./static/videos/real/wipe-plate/act.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">DP</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/wipe-plate/dp.jpg"><source src="./static/videos/real/wipe-plate/dp.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">&pi;<sub>0.5</sub></div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/wipe-plate/pi.jpg"><source src="./static/videos/real/wipe-plate/pi.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">LDP</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/wipe-plate/ldp.jpg"><source src="./static/videos/real/wipe-plate/ldp.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">CDP</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/wipe-plate/cdp.jpg"><source src="./static/videos/real/wipe-plate/cdp.mp4" type="video/mp4"></video>
+      </div>
+    </div>
+
+    <!-- Task: Push-T-Multi-Goals -->
+        <div class="task-card-ref">
+      <div class="tcr-head"><span class="tcr-name">Push-T-Multi-Goals</span><span class="tcr-chev">&#9662;</span></div>
+      <div class="tcr-body">
+        <span class="tbench-tag">Track Progress</span>
+        <p>Push the T-block into <strong>three goal regions</strong> in any order, <strong>without repeating</strong> one.</p>
+        <p class="success"><strong>Success:</strong> all three goals reached, each exactly once.</p>
+      </div>
+    </div>
+    <div class="method-grid">
+      <div class="method-card is-ours">
+        <div class="method-label">CAMP (Ours)</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/push-t-multi-goals/camp.jpg"><source src="./static/videos/real/push-t-multi-goals/camp.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">ACT</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/push-t-multi-goals/act.jpg"><source src="./static/videos/real/push-t-multi-goals/act.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">DP</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/push-t-multi-goals/dp.jpg"><source src="./static/videos/real/push-t-multi-goals/dp.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">&pi;<sub>0.5</sub></div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/push-t-multi-goals/pi.jpg"><source src="./static/videos/real/push-t-multi-goals/pi.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">LDP</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/push-t-multi-goals/ldp.jpg"><source src="./static/videos/real/push-t-multi-goals/ldp.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">CDP</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/push-t-multi-goals/cdp.jpg"><source src="./static/videos/real/push-t-multi-goals/cdp.mp4" type="video/mp4"></video>
+      </div>
+    </div>
+
+    <!-- Task: Probe Insert -->
+        <div class="task-card-ref">
+      <div class="tcr-head"><span class="tcr-name">Probe Insert</span><span class="tcr-chev">&#9662;</span></div>
+      <div class="tcr-body">
+        <span class="tbench-tag">Learn from Failure</span>
+        <p><strong>Probe</strong> three holes until finding the one that accepts the peg at <strong>full depth</strong>.</p>
+        <p class="success"><strong>Success:</strong> the peg is fully inserted into the accepting hole.</p>
+      </div>
+    </div>
+    <div class="method-grid">
+      <div class="method-card is-ours">
+        <div class="method-label">CAMP (Ours)</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/probe-insert/camp.jpg"><source src="./static/videos/real/probe-insert/camp.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">ACT</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/probe-insert/act.jpg"><source src="./static/videos/real/probe-insert/act.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">DP</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/probe-insert/dp.jpg"><source src="./static/videos/real/probe-insert/dp.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">&pi;<sub>0.5</sub></div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/probe-insert/pi.jpg"><source src="./static/videos/real/probe-insert/pi.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">LDP</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/probe-insert/ldp.jpg"><source src="./static/videos/real/probe-insert/ldp.mp4" type="video/mp4"></video>
+      </div>
+      <div class="method-card">
+        <div class="method-label">CDP</div>
+        <video class="cmp-video" muted loop playsinline preload="none" poster="./static/videos/real/probe-insert/cdp.jpg"><source src="./static/videos/real/probe-insert/cdp.mp4" type="video/mp4"></video>
+      </div>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column is-four-fifths" style="max-width: 1000px;">
+        <div class="tbench-result">
+          <strong>The memory gap is even larger on the real robot.</strong> Every memoryless
+          baseline (ACT, DP, &pi;<sub>0.5</sub>) scores 0/10 on Push-T-Multi-Goals, Swap-Can, and
+          Wipe-Plate, while <strong>CAMP reaches 7/10 on each</strong>. A bounded history window
+          recovers only part of the gap: LDP fails on every task, and CDP succeeds only on
+          Swap-Can (3/10) and Probe-Insert (7/15). CAMP is the only method that consistently
+          completes all four tasks.
+        </div>
+      </div>
+    </div>
+
+    <p class="has-text-centered" style="margin-top: 1.5rem; color: #777;">
+      For more details and insights, please refer to the paper.
+    </p>
+
+  </div>
+</section>
+
+
+<!-- Limitations and Conclusion -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Limitations and Conclusion</h2>
+        <div class="content has-text-justified">
+          <p>
+            We introduced <span class="has-text-weight-bold">CAMP</span>, a memory-augmented
+            visuomotor policy for long-horizon, multi-stage manipulation under partial observability
+            that turns the robot's own action history into a scalable, self-supervised learning
+            signal. <span class="has-text-weight-bold">CAMP</span> demonstrates consistent gains
+            across Memory-T-Bench, Memory-Manip-Bench, RMBench, and multiple challenging real-robot
+            tasks.
+          </p>
+          <p>
+            Limitations remain. Tasks requiring extremely-long-horizon memory are still challenging
+            for our method. Thus, extending CAMP to support such long-horizon memory is a natural
+            avenue for future work.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            Website template borrowed from
+            <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>, licensed under
+            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script id="cmp-video-autoplay">
+document.addEventListener('DOMContentLoaded', function () {
+  var vids = Array.prototype.slice.call(document.querySelectorAll('video.cmp-video'));
+  function play(v){ var p = v.play(); if (p && p.catch) p.catch(function(){}); }
+
+  vids.forEach(function (v) {
+    var sp = document.createElement('div');
+    sp.className = 'cmp-spinner';
+    (v.parentNode || v).appendChild(sp);
+    var show = function(){ sp.classList.remove('is-hidden'); };
+    var hide = function(){ sp.classList.add('is-hidden'); };
+    v.addEventListener('playing', hide);
+    v.addEventListener('waiting', show);
+    v.addEventListener('stalled', show);
+    v.addEventListener('canplay', function(){ if (v.dataset.active === '1') play(v); });
+    v.addEventListener('pause',   function(){ if (v.dataset.active === '1' && !v.ended) play(v); });
+  });
+
+  // Lazy-load: only fetch/play videos near the viewport; pause when far away.
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        var v = e.target;
+        if (e.isIntersecting) {
+          v.dataset.active = '1';
+          if (v.preload !== 'auto') v.preload = 'auto';
+          play(v);
+        } else {
+          v.dataset.active = '0';
+          v.pause();
+        }
+      });
+    }, { rootMargin: '600px 0px 600px 0px', threshold: 0.01 });
+    vids.forEach(function (v) { io.observe(v); });
+  } else {
+    vids.forEach(function (v) { v.dataset.active = '1'; v.preload = 'auto'; play(v); });
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) vids.forEach(function (v) { if (v.dataset.active === '1') play(v); });
+  });
+
+  // Per-video seek slider (scrub to any moment) for each real-robot clip
+  document.querySelectorAll('#real-robot video.cmp-video').forEach(function (v) {
+    var wrap = document.createElement('div');
+    wrap.className = 'seek-wrap';
+    var seek = document.createElement('input');
+    seek.type = 'range'; seek.min = 0; seek.max = 1000; seek.value = 0; seek.step = 1;
+    seek.className = 'seek-slider';
+    seek.setAttribute('aria-label', 'Seek');
+    wrap.appendChild(seek);
+    (v.parentNode || v).appendChild(wrap);
+    var dragging = false;
+    v.addEventListener('timeupdate', function () {
+      if (!dragging && v.duration) seek.value = Math.round((v.currentTime / v.duration) * 1000);
+    });
+    function seekTo(){ if (v.duration) v.currentTime = (seek.value / 1000) * v.duration; }
+    seek.addEventListener('input',  function () { dragging = true; seekTo(); });
+    seek.addEventListener('change', function () { dragging = false; });
+    seek.addEventListener('mouseup',  function () { dragging = false; });
+    seek.addEventListener('touchend', function () { dragging = false; });
+  });
+
+  // Horizontal scroller arrows (works for every .bench-scroller on the page)
+  document.querySelectorAll('.bench-scroller').forEach(function (scroller) {
+    var track = scroller.querySelector('.bench-track');
+    var prev  = scroller.querySelector('.bench-prev');
+    var next  = scroller.querySelector('.bench-next');
+    if (!track) return;
+    function step(){ var it = track.querySelector('.bench-item'); return it ? it.getBoundingClientRect().width + 16 : 240; }
+    function update(){
+      if (prev) prev.disabled = track.scrollLeft <= 2;
+      if (next) next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+    }
+    if (prev) prev.addEventListener('click', function(){ track.scrollBy({left: -step(), behavior: 'smooth'}); });
+    if (next) next.addEventListener('click', function(){ track.scrollBy({left:  step(), behavior: 'smooth'}); });
+    track.addEventListener('scroll', update);
+    window.addEventListener('resize', update);
+    update();
+  });
+});
+</script>
+</body>
+</html>
